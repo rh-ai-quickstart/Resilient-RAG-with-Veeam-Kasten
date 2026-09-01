@@ -1,5 +1,5 @@
 <!-- omit from toc -->
-# Centralize company knowledge with an Enterprise RAG Chatbot
+# Centralize company knowledge with an Enterprise RAG Chatbot and Protect it with Veeam Kasten
 
 [![GitHub release](https://img.shields.io/github/v/release/rh-ai-quickstart/RAG)](https://github.com/rh-ai-quickstart/RAG/releases)
 [![Quay.io](https://img.shields.io/badge/quay.io-llamastack--dist--ui-blue)](https://quay.io/repository/rh-ai-quickstart/llamastack-dist-ui)
