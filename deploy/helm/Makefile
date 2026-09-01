@@ -707,6 +707,15 @@ KASTEN_NAMESPACE ?= kasten-io
 KASTEN_CHART := kasten-config
 KASTEN_CHART_DIR := kasten
 
+# Optional overrides for the pgvector values in the kasten-config chart.  Each is
+# passed to helm only when set, so unset variables fall back to the chart defaults
+# in kasten/values.yaml rather than overriding them with an empty string.
+KASTEN_PGVECTOR_ARGS := \
+	$(if $(PGVECTOR_SECRET),--set pgvectorSecretName=$(PGVECTOR_SECRET)) \
+	$(if $(PGVECTOR_SERVICE),--set pgvectorServiceName=$(PGVECTOR_SERVICE)) \
+	$(if $(PGVECTOR_DATABASE),--set pgvectorDatabase=$(PGVECTOR_DATABASE)) \
+	$(if $(PGVECTOR_STATEFULSET),--set pgvectorStatefulSetName=$(PGVECTOR_STATEFULSET))
+
 .PHONY: install-kasten
 install-kasten: check-deps ## Install Veeam Kasten K10 and configure data protection for the RAG application
 	@if [ -z "$(NAMESPACE)" ]; then echo -e "$(RED)[ERROR]$(NC) NAMESPACE is required for install-kasten"; exit 1; fi
@@ -722,7 +731,8 @@ install-kasten: check-deps ## Install Veeam Kasten K10 and configure data protec
 	@echo -e "$(BLUE)[INFO]$(NC) Deploying Kanister blueprint and Kasten policy..."
 	@helm upgrade --install $(KASTEN_CHART) $(KASTEN_CHART_DIR) \
 		--namespace $(KASTEN_NAMESPACE) \
-		--set ragNamespace=$(NAMESPACE)
+		--set ragNamespace=$(NAMESPACE) \
+		$(KASTEN_PGVECTOR_ARGS)
 	@echo -e "$(GREEN)[SUCCESS]$(NC) Kasten K10 installed successfully."
 	@echo -e ""
 	@echo -e "$(YELLOW)[NEXT STEPS]$(NC)"
@@ -733,9 +743,11 @@ install-kasten: check-deps ## Install Veeam Kasten K10 and configure data protec
 	@echo -e "  3. Associate the profile with the policy:"
 	@echo -e "       make kasten-set-profile NAMESPACE=$(NAMESPACE) LOCATION_PROFILE=<profile-name>"
 	@echo -e ""
-	@echo -e "$(YELLOW)[NOTE]$(NC) If the pgvectorSecretName default (pgvector-secret) does not match"
-	@echo -e "  your cluster, override it:"
+	@echo -e "$(YELLOW)[NOTE]$(NC) If the pgvector defaults do not match your cluster, override them:"
 	@echo -e "       make install-kasten NAMESPACE=$(NAMESPACE) PGVECTOR_SECRET=<secret-name>"
+	@echo -e "  Available overrides: PGVECTOR_SECRET (default: pgvector-secret),"
+	@echo -e "  PGVECTOR_SERVICE (pgvector), PGVECTOR_DATABASE (rag_blueprint),"
+	@echo -e "  PGVECTOR_STATEFULSET (pgvector)"
 
 .PHONY: kasten-set-profile
 kasten-set-profile: ## Set the K10 Location Profile for the RAG backup policy (LOCATION_PROFILE=<name>)
@@ -746,7 +758,8 @@ kasten-set-profile: ## Set the K10 Location Profile for the RAG backup policy (L
 		--namespace $(KASTEN_NAMESPACE) \
 		--reuse-values \
 		--set ragNamespace=$(NAMESPACE) \
-		--set locationProfile=$(LOCATION_PROFILE)
+		--set locationProfile=$(LOCATION_PROFILE) \
+		$(KASTEN_PGVECTOR_ARGS)
 	@echo -e "$(GREEN)[SUCCESS]$(NC) Location profile updated to: $(LOCATION_PROFILE)"
 
 .PHONY: uninstall-kasten
