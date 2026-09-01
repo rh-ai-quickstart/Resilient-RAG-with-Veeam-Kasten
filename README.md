@@ -45,6 +45,10 @@ A production RAG chatbot is not a stateless application. The intelligence that m
 
 **[Veeam Kasten](https://www.veeam.com/products/cloud/kubernetes-data-protection.html) is a Kubernetes-native data management platform** built specifically for containerized applications. Rather than treating a cluster as a set of volumes to be snapshotted, Kasten understands the *application*: it discovers the workloads, custom resources, configuration, and persistent data that constitute a running app, then captures, moves, and restores them as a coherent unit. This QuickStart ships a complete Kasten configuration so you can experience that model against a real AI workload — see [Protect the Deployment with Veeam Kasten](#protect-the-deployment-with-veeam-kasten).
 
+![How Veeam Kasten protects the RAG AI application on OpenShift](docs/images/kasten-rag-protection.png)
+
+*Kasten K10 runs in its own `kasten-io` namespace, alongside — not inside — the RAG application: the `rag-daily-backup` policy selects the RAG namespace, snapshots every PVC through CSI, runs the Kanister blueprint against pgvector, and exports the resulting restore point to the location profile you define. Editable source: [`kasten-rag-protection.svg`](docs/images/kasten-rag-protection.svg).*
+
 #### One application, one restore point
 
 Kasten captures the entire OpenShift AI RAG application — the vector database, the relational metadata that indexes it, the object-store document corpus, and every Kubernetes object that defines the deployment — into a **single, application-consistent restore point**.
@@ -88,6 +92,8 @@ For an AI platform team, the practical result is that the RAG application's most
 ![RAG System Architecture](docs/images/rag-architecture.png)
 
 *This diagram illustrates both the ingestion pipeline for document processing and the RAG pipeline for query handling. For more details click [here](docs/rag-reference-architecture.md).*
+
+For how this deployment is backed up, restored, and moved between clusters, see the data protection architecture in [Data protection and resilience with Veeam Kasten](#data-protection-and-resilience-with-veeam-kasten).
 
 | Layer/Component | Technology | Purpose/Description |
 |-----------------|------------|---------------------|
@@ -359,7 +365,7 @@ For detailed post-installation verification, configuration options, and usage in
 
 ### Protect the Deployment with Veeam Kasten
 
-Once the RAG application is running, deploy Veeam Kasten to protect it. See [Data protection and resilience with Veeam Kasten](#data-protection-and-resilience-with-veeam-kasten) for why this matters. The chart in [`deploy/helm/kasten`](deploy/helm/kasten) installs Kasten K10, the pgvector Kanister blueprint, and a daily backup policy covering the whole RAG namespace.
+Once the RAG application is running, deploy Veeam Kasten to protect it. See [Data protection and resilience with Veeam Kasten](#data-protection-and-resilience-with-veeam-kasten) for why this matters and for an architecture diagram of how the pieces fit together. The chart in [`deploy/helm/kasten`](deploy/helm/kasten) installs Kasten K10, the pgvector Kanister blueprint, and a daily backup policy covering the whole RAG namespace.
 
 1. **Install Kasten K10 and the RAG data protection configuration**
 
