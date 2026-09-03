@@ -1,5 +1,5 @@
 <!-- omit from toc -->
-# Centralize company knowledge with an Enterprise RAG Chatbot and Protect it with Veeam Kasten
+# Protect Enterprise RAG Knowledge with Veeam Kasten on OpenShift
 
 [![GitHub release](https://img.shields.io/github/v/release/rh-ai-quickstart/RAG)](https://github.com/rh-ai-quickstart/RAG/releases)
 [![Quay.io](https://img.shields.io/badge/quay.io-llamastack--dist--ui-blue)](https://quay.io/repository/rh-ai-quickstart/llamastack-dist-ui)
@@ -437,4 +437,5 @@ For local development and testing, see the [Local Setup Guide](docs/local_setup_
 
 * **Product:** OpenShift AI, Veeam Kasten
 * **Use case:** RAG, AI data protection and resilience
-* **Business challenge:** Adopt and scale AI
+* **Business challenge:** Adopt, scale, and protect AI
+* **Partner:** Veeam
