@@ -437,5 +437,5 @@ For local development and testing, see the [Local Setup Guide](docs/local_setup_
 
 * **Product:** OpenShift AI, Veeam Kasten
 * **Use case:** RAG, AI data protection and resilience
-* **Business challenge:** Adopt, scale, and protect AI
+* **Business challenge:** Adopt and scale AI
 * **Partner:** Veeam
