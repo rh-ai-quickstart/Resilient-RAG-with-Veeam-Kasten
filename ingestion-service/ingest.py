@@ -122,7 +122,7 @@ class IngestionService:
         return pdf_files
     
     def fetch_from_s3(self, config: Dict[str, Any], temp_dir: str) -> List[str]:
-        """Fetch documents from S3/MinIO."""
+        """Fetch documents from S3-compatible storage."""
         import boto3
         
         endpoint = config['endpoint']

@@ -154,21 +154,32 @@ pgvector:
     port: "5432"
 
 configure-pipeline:
-  minio:
-    secret:
-      user: minio_rag_user
-      password: minio_rag_password
-      host: minio
-      port: "9000"
-    
-      # Upload sample files to the minio bucket 
+  enabled: true
+  aws-compatible-storage:
+    enabled: true
+    fullnameOverride: aws-compatible-storage
+    storage:
+      data:
+        size: 50Gi
+    auth:
+      enabled: true
+      username: s4admin
+      password: s4secret
+    route:
+      enabled: true
+      s3Api:
+        enabled: true
+    # Upload sample documents to S3-compatible storage.
     sampleFileUpload:
       enabled: true
       bucket: documents
-      urls: 
+      urls:
         - https://raw.githubusercontent.com/rh-ai-quickstart/RAG/refs/heads/main/notebooks/zippity-zoo/Zippity_Zoo_Grand_Invention.pdf
         - https://raw.githubusercontent.com/rh-ai-quickstart/RAG/refs/heads/main/notebooks/zippity-zoo/Zippity_Zoo_and_the_Town_of_Tumble_Town.pdf
         - https://raw.githubusercontent.com/rh-ai-quickstart/RAG/refs/heads/main/notebooks/zippity-zoo/Zippity_Zoo_and_the_Town_of_Whispering_Willows.pdf
+  notebook:
+    s3:
+      bucketName: documents
 
 # Llama Stack Configuration
 llama-stack:

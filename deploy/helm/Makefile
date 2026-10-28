@@ -19,12 +19,10 @@ MAKEFLAGS += --no-print-directory
 .DEFAULT_GOAL := help
 
 # Default values
-VERSION ?= 0.2.22
+VERSION ?= 0.2.47
 POSTGRES_USER ?= postgres
 POSTGRES_PASSWORD ?= rag_password
 POSTGRES_DBNAME ?= rag_blueprint
-MINIO_USER ?= minio_rag_user
-MINIO_PASSWORD ?= minio_rag_password
 # HF_TOKEN will be managed by the get_hf_token helper function
 INTERACTIVE ?= true
 RAG_CHART := rag
@@ -160,10 +158,10 @@ SOURCE ?= S3
 EMBEDDING_MODEL ?= all-MiniLM-L6-v2
 INGESTION_PIPELINE_NAME ?= demo-rag-vector-db
 INGESTION_PIPELINE_VERSION ?= 1.0
-ACCESS_KEY_ID ?= $(MINIO_USER)
-SECRET_ACCESS_KEY ?= $(MINIO_PASSWORD)
+ACCESS_KEY_ID ?= s4admin
+SECRET_ACCESS_KEY ?= s4secret
 BUCKET_NAME ?= documents
-ENDPOINT_URL ?= http://minio:9000
+ENDPOINT_URL ?= http://aws-compatible-storage:7480
 REGION ?= us-east-1
 # PDF file path variable for upload-pdf target
 PDF_DIR = ../../notebooks
@@ -177,10 +175,6 @@ helm_pgvector_args = \
     --set pgvector.secret.user=$(POSTGRES_USER) \
     --set pgvector.secret.password=$(POSTGRES_PASSWORD) \
     --set pgvector.secret.dbname=$(POSTGRES_DBNAME)
-
-helm_minio_args = \
-    --set minio.secret.user=$(MINIO_USER) \
-    --set minio.secret.password=$(MINIO_PASSWORD)
 
 helm_llm_service_args = \
     --set llm-service.secret.hf_token=$(HF_TOKEN) \
@@ -657,8 +651,8 @@ uninstall: ## Uninstall the RAG deployment and clean up resources
 	@if [ -z "$(NAMESPACE)" ]; then echo -e "$(RED)[ERROR]$(NC) NAMESPACE is required for uninstall"; exit 1; fi
 	@echo -e "$(BLUE)[INFO]$(NC) Uninstalling $(RAG_CHART) helm chart..."
 	@helm -n $(NAMESPACE) uninstall $(RAG_CHART)
-	@echo -e "$(BLUE)[INFO]$(NC) Removing pgvector and minio PVCs from $(NAMESPACE)..."
-	@oc get pvc -n $(NAMESPACE) -o custom-columns=NAME:.metadata.name | grep -E '^(pg|minio)-data' | xargs -I {} oc delete pvc -n $(NAMESPACE) {} ||:
+	@echo -e "$(BLUE)[INFO]$(NC) Removing pgvector and AWS-compatible storage PVCs from $(NAMESPACE)..."
+	@oc get pvc -n $(NAMESPACE) -o custom-columns=NAME:.metadata.name | grep -E '^(pg-data|aws-compatible-storage-data)' | xargs -I {} oc delete pvc -n $(NAMESPACE) {} ||:
 	@echo -e "$(BLUE)[INFO]$(NC) Deleting remaining pods in namespace $(NAMESPACE)..."
 	@oc delete pods -n $(NAMESPACE) --all
 	@echo -e "$(YELLOW)[INFO]$(NC) Checking for any remaining resources in namespace $(NAMESPACE)..."

@@ -20,7 +20,7 @@ pip install -r requirements.txt
 
 ```bash
 export LLAMA_STACK_SERVER=http://localhost:8321
-export LLAMA_STACK_SERVER_OPENAI=$LLAMA_STACK_SERVER/v1/openai/v1
+export LLAMA_STACK_SERVER_OPENAI=$LLAMA_STACK_SERVER/v1
 ```
 
 Some examples use the direct Llama Stack endpoint while others use the OpenAI API compatible endpoint. 

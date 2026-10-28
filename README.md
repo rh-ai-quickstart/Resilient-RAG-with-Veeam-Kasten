@@ -41,7 +41,7 @@ This QuickStart allows users to explore the capabilities of RAG by:
 
 ### Data protection and resilience with Veeam Kasten
 
-A production RAG chatbot is not a stateless application. The intelligence that makes FantaCo's assistant useful lives in state that is scattered across the namespace: vector embeddings and their relational metadata in PostgreSQL + PGVector, ingested source documents in S3/MinIO object storage, LlamaStack configuration and session data, Kubeflow pipeline definitions and run history, model-serving configuration, and the ConfigMaps, Secrets, and Routes that wire it all together. Lose any one of those pieces and the chatbot does not simply stop — it keeps answering, but with stale, incomplete, or wrong context. Rebuilding it from scratch means re-running ingestion and re-embedding the entire corpus, consuming hours of GPU/CPU time while the business waits.
+A production RAG chatbot is not a stateless application. The intelligence that makes FantaCo's assistant useful lives in state that is scattered across the namespace: vector embeddings and their relational metadata in PostgreSQL + PGVector, ingested source documents in AWS-compatible storage, LlamaStack configuration and session data, Kubeflow pipeline definitions and run history, model-serving configuration, and the ConfigMaps, Secrets, and Routes that wire it all together. Lose any one of those pieces and the chatbot does not simply stop — it keeps answering, but with stale, incomplete, or wrong context. Rebuilding it from scratch means re-running ingestion and re-embedding the entire corpus, consuming hours of GPU/CPU time while the business waits.
 
 **[Veeam Kasten](https://www.veeam.com/products/cloud/kubernetes-data-protection.html) is a Kubernetes-native data management platform** built specifically for containerized applications. Rather than treating a cluster as a set of volumes to be snapshotted, Kasten understands the *application*: it discovers the workloads, custom resources, configuration, and persistent data that constitute a running app, then captures, moves, and restores them as a coherent unit. This QuickStart ships a complete Kasten configuration so you can experience that model against a real AI workload — see [Protect the Deployment with Veeam Kasten](#protect-the-deployment-with-veeam-kasten).
 
@@ -56,7 +56,7 @@ Kasten captures the entire OpenShift AI RAG application — the vector database,
 | RAG component | State protected by Kasten |
 |---------------|---------------------------|
 | PostgreSQL + PGVector | Vector embeddings, collections, and relational schema and metadata |
-| S3 / MinIO document store | Source documents that feed the ingestion pipeline |
+| S3-compatible document store | Source documents that feed the ingestion pipeline |
 | LlamaStack | Configuration, registered models and shields, session state |
 | Kubeflow / Data Science Pipelines | Pipeline definitions, run history, and artifacts |
 | Model serving (vLLM / KServe) | InferenceService and serving-runtime definitions |

@@ -468,8 +468,8 @@ jobs:
           echo "=== PGVector logs ==="
           kubectl logs -l app.kubernetes.io/name=pgvector -n rag-e2e --tail=100 || echo "No PGVector logs available"
           
-          echo "=== MinIO logs ==="
-          kubectl logs -l app.kubernetes.io/name=minio -n rag-e2e --tail=100 || echo "No MinIO logs available"
+          echo "=== AWS-compatible storage logs ==="
+          kubectl logs -l app.kubernetes.io/name=aws-compatible-storage -n rag-e2e --tail=100 || echo "No AWS-compatible storage logs available"
           
           echo "=== Ingestion Pipeline logs (if enabled) ==="
           kubectl logs -l app.kubernetes.io/name=ingestion-pipeline -n rag-e2e --tail=100 || echo "No ingestion pipeline logs"

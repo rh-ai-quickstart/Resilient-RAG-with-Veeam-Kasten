@@ -124,7 +124,7 @@ This reference architecture can be deployed in OpenShift with the following pod 
 | **Vector Database** | Embedding storage and search | Manages PGVector store for document embeddings, handles similarity search requests, requires persistent storage, deployed as StatefulSet |
 | **Output Safety Shield** | Output content validation | Screens generated responses for harmful content, verifies factual accuracy and alignment, can be independently scaled |
 | **Embedding Service** | Vector embeddings | Generates embeddings for documents and queries, may be combined with document processing components, scales based on workload |
-| **Ingestion Pipeline** | Document processing | Handles workflows via Kubeflow Pipelines, uses batch processing for large document sets, connected to S3-compatible storage (MinIO) |
+| **Ingestion Pipeline** | Document processing | Handles workflows via Kubeflow Pipelines, uses batch processing for large document sets, connected to S3-compatible storage |
 
 ## Implementation Technologies
 
@@ -141,4 +141,4 @@ The RAG QuickStart uses the following technology stack:
 | **Embedding Model**        | all-MiniLM-L6-v2                                |
 | **Document Processing**    | Docling                                         |
 | **Pipeline Orchestration** | Kubeflow Pipelines                              |
-| **Object Storage**         | MinIO (S3-compatible)                           |
+| **Object Storage**         | AWS-compatible storage                           |

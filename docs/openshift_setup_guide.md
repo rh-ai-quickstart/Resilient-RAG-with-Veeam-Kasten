@@ -293,8 +293,7 @@ fetch-and-store-pipeline-tmxwj-system-dag-driver-3443954210        0/2     Compl
 llama-3-2-3b-instruct-predictor-00001-deployment-6bbf96f8674677    3/3     Running     0          10m
 llamastack-6d5c5b999b-5lffb                                        1/1     Running     0          11m
 mariadb-dspa-74744d65bd-fdxjd                                      1/1     Running     0          10m
-minio-0                                                            1/1     Running     0          10m
-minio-dspa-7bb47d68b4-nvw7t                                        1/1     Running     0          10m
+aws-compatible-storage-<pod-id>                                    1/1     Running     0          10m
 pgvector-0                                                         1/1     Running     0          10m
 rag-7fd7b47844-nlfvr                                               1/1     Running     0          11m
 rag-mcp-weather-9cc97d574-nf5q8                                    1/1     Running     0          11m
@@ -360,64 +359,42 @@ If you want to use the pre-ingestion pipeline for batch document processing, con
 
 [Reference Documentation](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2.8/html/working_on_data_science_projects/working-with-data-science-pipelines_ds-pipelines#configuring-a-pipeline-server_ds-pipelines)
 
-**Get MinIO credentials:**
+The RAG v0.2.47 chart uses `configure-pipeline` 0.6.0 and the shared
+[aws-compatible-storage chart](https://github.com/rh-ai-quickstart/ai-architecture-charts/tree/main/aws-compatible-storage).
+The storage chart's `sampleFileUpload` configuration creates the `documents`
+bucket and uploads the sample PDFs. The notebook uses the same bucket, and the
+pipeline server receives its storage endpoint and credentials automatically.
+
+| Consumer | Endpoint / resource |
+|----------|---------------------|
+| Same-namespace S3 clients | `http://aws-compatible-storage:7480` |
+| DSPA / cross-namespace clients | `http://aws-compatible-storage.<namespace>.svc.cluster.local:7480` |
+| Workstation S3 clients | HTTPS host of Route `aws-compatible-storage-api` |
+| Storage web UI | HTTPS host of Route `aws-compatible-storage` |
+| S3 credentials | Secret `aws-compatible-storage-credentials`, keys `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` |
+| Persistent data | PVC `aws-compatible-storage-data`, 50Gi |
+
+The chart defaults supply the image, region, and demo S3 keys
+(`s4admin` / `s4secret`). Override storage settings under
+`configure-pipeline.aws-compatible-storage` in untracked `deploy/helm/rag-values.yaml`
+as needed. Both the S3 API and web UI have HTTPS Routes, and web UI login is
+enabled with demo credentials `s4admin` / `s4secret`. Override UI credentials under
+`configure-pipeline.aws-compatible-storage.auth`.
+
+**Upload documents from your workstation (optional):**
+
+Install the AWS CLI, then read the credentials and upload through the S3 API Route:
 
 ```bash
-MINIO_API="https://$(oc get route minio-api -o jsonpath='{.spec.host}')"
-
-B64_USER=$(oc get secret minio -o jsonpath='{.data.username}')
-MINIO_USER=$(echo $B64_USER | base64 --decode)
-echo "user: $MINIO_USER"
-
-B64_PASSWORD=$(oc get secret minio -o jsonpath='{.data.password}')
-MINIO_PASSWORD=$(echo $B64_PASSWORD | base64 --decode)
-echo "password: $MINIO_PASSWORD"
+export AWS_ACCESS_KEY_ID="$(oc get secret aws-compatible-storage-credentials -n "$NAMESPACE" -o jsonpath='{.data.AWS_ACCESS_KEY_ID}' | base64 --decode)"
+export AWS_SECRET_ACCESS_KEY="$(oc get secret aws-compatible-storage-credentials -n "$NAMESPACE" -o jsonpath='{.data.AWS_SECRET_ACCESS_KEY}' | base64 --decode)"
+export AWS_DEFAULT_REGION=us-east-1
+S3_API="https://$(oc get route aws-compatible-storage-api -n "$NAMESPACE" -o jsonpath='{.spec.host}')"
+aws --endpoint-url "$S3_API" s3 cp ~/my-documents/my.pdf s3://documents/my.pdf
 ```
 
-**Configure Kubeflow Pipeline:**
-
-Navigate to Kubeflow Pipelines in OpenShift AI and configure with these values:
-
-- **Access Key**: `minio_rag_user` (value of `$MINIO_USER`)
-- **Secret Key**: `minio_rag_password` (value of `$MINIO_PASSWORD`)
-- **Endpoint**: Value of `$MINIO_API`
-- **Region**: `us-east-1`
-- **Bucket**: `documents`
-
-![KFP Configure](images/kfp-configure.png)
-
-**Using MinIO CLI (optional):**
-
-Install MinIO CLI:
-
-```bash
-brew install minio/stable/mc
-```
-
-Configure MinIO alias:
-
-```bash
-mc alias set minio $MINIO_API $MINIO_USER $MINIO_PASSWORD
-```
-
-Create bucket (if not present):
-
-```bash
-mc mb minio/documents
-```
-
-Upload documents:
-
-```bash
-mc cp ~/my-documents/my.pdf minio/documents
-```
-
-Access MinIO WebUI:
-
-```bash
-MINIO_WEB="https://$(oc get route minio-webui -o jsonpath='{.spec.host}')"
-open $MINIO_WEB
-```
+The workbench receives `AWS_S3_ENDPOINT`, `AWS_ACCESS_KEY_ID`, and
+`AWS_SECRET_ACCESS_KEY` from the chart. The ingestion notebook uses these variables.
 
 Once configured, you can run the ingestion pipeline from the Jupyter notebook:
 
@@ -606,8 +583,7 @@ To add another model follow these steps:
     llama-guard-3-8b-predictor-00001-deployment-6cbff4965c-gzx5v        3/3     Running                  0             13m
     llamastack-7989d974fc-w24fn                                         1/1     Running                  0             13m
     mariadb-dspa-74744d65bd-kb2dh                                       1/1     Running                  0             35m
-    minio-0                                                             1/1     Running                  0             35m
-    minio-dspa-7bb47d68b4-kb722                                         1/1     Running                  0             35m
+    aws-compatible-storage-<pod-id>                                    1/1     Running                  0             35m
     pgvector-0                                                          1/1     Running                  0             35m
     rag-7fd7b47844-jkqtf                                                1/1     Running                  0             35m
     rag-mcp-weather-9cc97d574-s8vpt                                     1/1     Running                  0             35m
